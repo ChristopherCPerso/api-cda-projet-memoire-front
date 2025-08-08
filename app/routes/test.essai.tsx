@@ -2,10 +2,8 @@ import type { LoaderFunctionArgs } from "react-router";
 
 export const loader = ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
-
-  console.log(url);
 };
 
 export default function Test() {
-  return <h1>Hello World</h1>;
+  return <h1 className="font-urbanist text-red-400">Hello World</h1>;
 }

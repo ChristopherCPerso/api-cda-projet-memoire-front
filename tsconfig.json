@@ -1,12 +1,9 @@
 {
-  "files": [],
-  "references": [{ "path": "./tsconfig.node.json" }],
-  "include": ["**/*.ts", "**/*.tsx", "server.ts"],
+  "include": [" **/*.ts", "**/*.tsx", "**/.server/**/*.ts", "**/.server/**/*.tsx", "**/.client/**/*.ts", "**/.client/**/*.tsx"],
   "compilerOptions": {
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    // Corrigé : Suppression de @remix-run/node qui n'est pas dans vos dépendances
     "types": ["vite/client"],
     "isolatedModules": true,
     "esModuleInterop": true,
@@ -20,7 +17,7 @@
     "baseUrl": "./",
     "checkJs": true,
     "verbatimModuleSyntax": true,
-    "noEmit": false,
+    "noEmit": true,
     "declaration": false,
     "paths": {
       "~/*": ["./app/*"]

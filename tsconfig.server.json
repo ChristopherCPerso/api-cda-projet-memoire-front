@@ -1,0 +1,23 @@
+{
+  "include": ["server.ts", "server/**/*"],
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "bundler",
+    "noEmit": false,
+    "lib": ["DOM", "DOM.Iterable", "ES2019"],
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "strict": true,
+    "declaration": false,
+    "target": "ES2017",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "server/*": ["./server/*"]
+    }
+  }
+}

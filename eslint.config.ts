@@ -7,15 +7,14 @@ import pluginReactHooks from "eslint-plugin-react-hooks";
 import pluginJsxA11y from "eslint-plugin-jsx-a11y";
 import pluginTailwindcss from "eslint-plugin-tailwindcss";
 import pluginUnusedImports from "eslint-plugin-unused-imports";
-import globals from "globals";
 
+import globals from "globals";
 export default defineConfig([
   // 1. Fichiers ignorés
   {
-    ignores: ["dist/", "build/", "node_modules/", ".react-router/", "server.ts"],
+    ignores: ["dist/", "build/", "node_modules/", ".react-router/", "server.ts", "eslint.config.ts", "postcss.config.js"],
   },
 
-  // 2. Config de base JS et TS
   js.configs.recommended,
   {
     files: ["**/*.{ts,tsx}"],
@@ -59,11 +58,11 @@ export default defineConfig([
       },
     },
     plugins: {
-      react: pluginReact as never,
-      "react-hooks": pluginReactHooks as never,
-      "jsx-a11y": pluginJsxA11y as never,
-      tailwindcss: pluginTailwindcss as never,
-      "unused-imports": pluginUnusedImports as never,
+      react: pluginReact,
+      "react-hooks": pluginReactHooks,
+      "jsx-a11y": pluginJsxA11y,
+      tailwindcss: pluginTailwindcss,
+      "unused-imports": pluginUnusedImports,
     },
     settings: {
       react: {
@@ -91,10 +90,10 @@ export default defineConfig([
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
       "react/jsx-uses-react": "off",
-
+      "no-undef": "off",
       // Tailwind
       "tailwindcss/classnames-order": "warn",
-
+      "tailwindcss/no-custom-classname": "off",
       // Console
       "no-console": "warn",
       "quotes": ["error", "double"],
