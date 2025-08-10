@@ -31,16 +31,14 @@
   --color-coral: #f36858;
   --color-coral-dark: #e84f3d;
   --color-blue-light: #daf1ff;
+  --color-blue-mid: #1d77cc;
   --color-blue-dark: #4689c8;
   --color-blue-night: #080816;
   --color-grey-medium: #b0b0b0;
+  --color-green-dark: #013824;
 
   /*Custom Shadow*/
   --shadow-atecna: 0 4px 4px 0 rgba(0, 0, 0, 0.2);
-}
-
-body {
-  @apply mt-6;
 }
 
 h1 {

@@ -30,7 +30,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <header>
+        <header className="sticky top-0 z-50 pt-10">
           <Header />
         </header>
         <main>{children}</main>
