@@ -5,5 +5,5 @@ export const loader = ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function Test() {
-  return <h1 className="font-urbanist text-red-400">Hello World</h1>;
+  return <h1 className="font-urbanist text-red-400">Page detail Restaurant</h1>;
 }
