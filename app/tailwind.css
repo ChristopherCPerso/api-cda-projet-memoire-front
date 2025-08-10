@@ -1,4 +1,19 @@
 @import "tailwindcss";
+@font-face {
+  font-family: "open";
+  src: url("/fonts/OpenSans-VariableFont_wdth.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "open-sans";
+  src: url("/fonts/Urbanist-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @theme {
   --font-sans:
@@ -7,20 +22,34 @@
   --font-urbanist:
     "Urbanist", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
+  --font-open:
+    "open", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
-@font-face {
-  font-family: "Urbanist";
-  src: url("/fonts/Urbanist-VariableFont_wght.ttf") format("truetype");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
+  /*Colors*/
+  --color-green-light: #dbece7;
+  --color-coral: #f36858;
+  --color-coral-dark: #e84f3d;
+  --color-blue-light: #daf1ff;
+  --color-blue-dark: #4689c8;
+  --color-blue-night: #080816;
+  --color-grey-medium: #b0b0b0;
 
-h1 {
-  @apply text-5xl font-bold;
+  /*Custom Shadow*/
+  --shadow-atecna: 0 4px 4px 0 rgba(0, 0, 0, 0.2);
 }
 
 body {
   @apply mt-6;
+}
+
+h1 {
+  @apply font-urbanist text-5xl leading-20 font-bold;
+}
+h2 {
+  @apply font-urbanist text-coral mb-5 text-3xl leading-12 font-semibold;
+}
+
+h3 {
+  @apply font-open text-xl font-medium;
 }

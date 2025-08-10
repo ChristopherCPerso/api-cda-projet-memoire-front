@@ -12,7 +12,15 @@ import globals from "globals";
 export default defineConfig([
   // 1. Fichiers ignorés
   {
-    ignores: ["dist/", "build/", "node_modules/", ".react-router/", "server.ts", "eslint.config.ts", "postcss.config.js"],
+    ignores: [
+      "dist/",
+      "build/",
+      "node_modules/",
+      ".react-router/",
+      "server.ts",
+      "eslint.config.ts",
+      "postcss.config.js",
+    ],
   },
 
   js.configs.recommended,
@@ -98,9 +106,15 @@ export default defineConfig([
       "no-console": "warn",
       "quotes": ["error", "double"],
       "jsx-quotes": ["error", "prefer-double"],
-      "react/jsx-curly-brace-presence": ["error", { props: "never", children: "never" }],
+      "react/jsx-curly-brace-presence": [
+        "error",
+        { props: "never", children: "never" },
+      ],
 
-      "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 0, "maxBOF": 0 }],
+      "no-multiple-empty-lines": [
+        "error",
+        { "max": 1, "maxEOF": 0, "maxBOF": 0 },
+      ],
     },
   },
 ]);

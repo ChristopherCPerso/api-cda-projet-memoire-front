@@ -1,7 +1,15 @@
-// {
-//   "extends": "./tsconfig.json",
-//   "include": ["app/**/*.ts", "app/**/*.tsx", "vite.config.ts", "tailwind.config.ts"],
-//   "compilerOptions": {
-//     "noEmit": true
-//   }
-// }
+// tsconfig.eslint.json
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    ".react-router/types/**/*",
+    "app/**/*",
+    "app/**/.server/**/*",
+    "app/**/.client/**/*",
+    "server/**/*",
+    "vite-env.d.ts"
+  ],
+  "compilerOptions": {
+    "types": ["vite/client", "vite-plugin-svgr/client"]
+  }
+}
