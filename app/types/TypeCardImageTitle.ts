@@ -1,7 +1,8 @@
 export interface TypeCardImageTitle {
-  title: string;
+  id: number;
+  name: string;
   rating?: number;
-  street: string;
+  address: string;
   postalcode: number;
   city: string;
   urlImg: string;
