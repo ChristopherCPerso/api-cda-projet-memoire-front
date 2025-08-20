@@ -37,7 +37,7 @@ export default function Header() {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/" aria-label="Accéder à votre profil utilisateur">
+          <NavLink to="/login" aria-label="Accéder à votre profil utilisateur">
             <img src="/img/SignIn.png" alt="Icône de connexion" />
           </NavLink>
         </li>
