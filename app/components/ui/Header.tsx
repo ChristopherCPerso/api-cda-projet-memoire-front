@@ -19,7 +19,7 @@ export default function Header() {
           <NavLink to="/">Contactez-nous</NavLink>
         </li>
         <li>
-          <NavLink to="/">
+          <NavLink to="/login" aria-label="Accéder à votre profil utilisateur">
             <img src="/img/SignIn.png" alt="Icône de connexion" />
           </NavLink>
         </li>
