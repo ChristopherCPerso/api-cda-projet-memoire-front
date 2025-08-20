@@ -5,6 +5,8 @@ import creditCard from "./creditCard.svg?react";
 import add from "./add.svg?react";
 import star from "./star.svg?react";
 import starFull from "./star_full.svg?react";
+import location from "./location.svg?react";
+import phone from "./phone.svg?react";
 
 export default {
   "filter": filter,
@@ -14,6 +16,8 @@ export default {
   "add": add,
   "star": star,
   "starFull": starFull,
+  "location": location,
+  "phone": phone,
 };
 
 export type IconName =
@@ -23,4 +27,6 @@ export type IconName =
   | "creditCard"
   | "add"
   | "star"
-  | "starFull";
+  | "starFull"
+  | "location"
+  | "phone";
