@@ -1,6 +1,7 @@
 import {
   Form,
   useActionData,
+  useNavigate,
   useSubmit,
   type ActionFunctionArgs,
 } from "react-router";
@@ -43,7 +44,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
     const result = await response.json();
 
-    console.log(response);
     if (response.ok) {
       return {
         success: true,
@@ -71,6 +71,7 @@ export default function RegisterPage() {
   const submit = useSubmit();
   const [isSuccessfullySend, setIsSuccessFullySend] = useState(false);
   const [isNotSend, setIsNotSend] = useState(false);
+  const navigate = useNavigate();
 
   const {
     formState: { errors, isValid },
@@ -103,12 +104,13 @@ export default function RegisterPage() {
     if (actionData?.success) {
       setIsSuccessFullySend(true);
       reset();
+      setTimeout(() => navigate("/login"), 500);
     }
 
     if (actionData?.error) {
       setIsNotSend(true);
     }
-  }, [actionData?.success, reset]);
+  }, [actionData?.error, actionData?.success, reset, navigate]);
   return (
     <section className="container mx-auto mb-12 flex flex-row gap-6">
       <div className="w-1/2">

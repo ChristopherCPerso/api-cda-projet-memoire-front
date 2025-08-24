@@ -36,7 +36,7 @@ export default function PageRestaurant() {
         <div className="flex w-full flex-row justify-between">
           <Searchbar isFiltered={true} className="w-1/3" />
           <NavLink
-            to="/"
+            to="/add"
             className="flex-rox text-coral font-open mt-3 flex h-5 w-full items-center justify-end gap-1 font-semibold"
           >
             Ajouter un restaurant
