@@ -47,8 +47,6 @@ export default function PageRestaurantDetail() {
     }
   }, [restaurant.reviews]);
 
-  console.log(rating);
-
   const formatTime = (dateString: Date) => {
     const date = new Date(dateString);
     const hour = date.getUTCHours();

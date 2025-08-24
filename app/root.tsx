@@ -4,12 +4,15 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
   type LinksFunction,
   type LoaderFunctionArgs,
 } from "react-router";
 import "./tailwind.css";
 import Footer from "./components/ui/Footer";
 import Header from "./components/ui/Header";
+import { Auth } from "./server/utils/auth.server";
+import { AppProvider } from "./utils/context/AppProvider";
 
 export const links: LinksFunction = () => [
   {
@@ -18,9 +21,13 @@ export const links: LinksFunction = () => [
   },
 ];
 
-export const loader = ({ request }: LoaderFunctionArgs) => {};
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const authResult = await Auth(request);
+  return authResult;
+};
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const authData = useLoaderData<typeof loader>();
   return (
     <html lang="fr">
       <head>
@@ -30,13 +37,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <header className="sticky top-0 z-50 pt-10">
-          <Header />
-        </header>
-        <main>{children}</main>
-        <Footer />
-        <ScrollRestoration />
-        <Scripts />
+        <AppProvider value={authData}>
+          <header className="sticky top-0 z-50 pt-10">
+            <Header />
+          </header>
+          <main>{children}</main>
+          <Footer />
+          <ScrollRestoration />
+          <Scripts />
+        </AppProvider>
       </body>
     </html>
   );

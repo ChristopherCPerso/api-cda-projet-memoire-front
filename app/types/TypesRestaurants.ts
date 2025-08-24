@@ -11,6 +11,7 @@ export interface Restaurants {
   reviews: Review[];
   description: string;
   phone: string;
+  paymentCategories: PaymentCategories[];
 }
 
 export interface Category {
@@ -40,4 +41,8 @@ export interface User {
   firstname: string;
   lastname: string;
   email: string;
+}
+export interface PaymentCategories {
+  id: number;
+  type: string;
 }

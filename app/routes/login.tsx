@@ -1,6 +1,7 @@
 import {
   Form,
   Link,
+  redirect,
   useActionData,
   useSubmit,
   type ActionFunctionArgs,
@@ -8,56 +9,49 @@ import {
 import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRemixForm } from "remix-hook-form";
-import { registerFormSchema } from "~/types/form/registerFormSchema";
+import { loginFormSchema } from "~/types/form/loginFormSchema";
 import { useEffect, useState } from "react";
 import Input from "~/components/ui/Input";
+import { commitSession, getSession } from "~/server/utils/session.server";
 
-type FormData = zod.infer<typeof registerFormSchema>;
-const resolver = zodResolver(registerFormSchema);
+type FormData = zod.infer<typeof loginFormSchema>;
+const resolver = zodResolver(loginFormSchema);
 
 export const action = async ({ request }: ActionFunctionArgs) => {
+  const session = await getSession(request.headers.get("Cookie"));
   const formData = await request.formData();
 
   const data = {
-    firstname: formData.get("firstname"),
-    lastname: formData.get("lastname"),
-    email: formData.get("email"),
+    username: formData.get("email"),
     password: formData.get("password"),
-    company: { name: formData.get("companyName") },
-    isAdmin: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
-  const { password, ...dataWithoutPassword } = data;
-
-  const finalPayload = {
-    ...dataWithoutPassword,
-    plainPassword: password,
   };
 
   try {
-    const response = await fetch(`${process.env.BASE_API_URL}/api/users`, {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(finalPayload),
-    });
-    const result = await response.json();
+    const response = await fetch(
+      `${process.env.BASE_API_URL}/api/login_check`,
+      {
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      },
+    );
 
-    console.log(response);
     if (response.ok) {
-      return {
-        success: true,
-        user: result,
-        status: response.status,
-      };
-    } else {
-      return {
-        success: false,
-        error: result.message || "Erreur lors de l'inscription",
-        status: response.status,
-      };
+      const result = await response.json();
+
+      if (result.token) {
+        session.set("token", result.token);
+        session.set("refresh_token", result.refresh_token);
+
+        return redirect("/profil", {
+          headers: {
+            "Set-Cookie": await commitSession(session),
+          },
+        });
+      }
     }
+
+    return { error: "L'email et/ou le mot de passe son érronés" };
   } catch (error) {
     console.error("Erreur lors de l'inscription", error);
     return {
@@ -67,7 +61,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 };
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const actionData = useActionData<typeof action>();
   const submit = useSubmit();
   const [isSuccessfullySend, setIsSuccessFullySend] = useState(false);
@@ -86,11 +80,8 @@ export default function RegisterPage() {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const form = new FormData();
-    form.set("firstname", watch("firstname"));
-    form.set("lastname", watch("lastname"));
     form.set("email", watch("email"));
     form.set("password", watch("password"));
-    form.set("companyName", watch("company.name"));
 
     if (form) {
       submit(form, {
@@ -109,7 +100,7 @@ export default function RegisterPage() {
     if (actionData?.error) {
       setIsNotSend(true);
     }
-  }, [actionData?.success, reset]);
+  }, [actionData?.error, actionData?.success, reset]);
   return (
     <section className="container mx-auto mb-12 flex flex-row gap-6">
       <div className="w-1/2">
@@ -158,7 +149,7 @@ export default function RegisterPage() {
                       disabled={!isValid}
                       className="bg-coral hover:bg-coral-dark cursor-pointer rounded-lg p-2 text-white transition-all duration-300 ease-in-out disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-gray-400"
                     >
-                      S'inscrire
+                      Se connecter
                     </button>
                   </div>
                 </Form>
