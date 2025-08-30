@@ -2,24 +2,31 @@ import { forwardRef } from "react";
 import { cn } from "~/utils/ui";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
+  label?: string;
   error?: string;
+  classname?: string;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, ...inputProps }, ref) => (
+  ({ label, error, classname, ...inputProps }, ref) => (
     <>
       <label
-        htmlFor={inputProps.id || inputProps.name}
-        className="block text-sm"
+        htmlFor={inputProps.name}
+        className="font-urbanist block text-base"
       >
         {label}
       </label>
       <input
+        id={inputProps.name}
+        name={inputProps.name}
         ref={ref}
-        className={cn("mt-1 block w-full rounded-md bg-white px-2 shadow-sm", {
-          "border-2 border-red-700": error,
-        })}
+        className={cn(
+          "mt-1 block w-full rounded-md bg-white px-2 shadow-sm",
+          classname,
+          {
+            "border-2 border-red-700": error,
+          },
+        )}
         {...inputProps}
       />
       {error && (

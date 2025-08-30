@@ -25,7 +25,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     username: formData.get("email"),
     password: formData.get("password"),
   };
-
   try {
     const response = await fetch(
       `${process.env.BASE_API_URL}/api/login_check`,
@@ -35,7 +34,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         body: JSON.stringify(data),
       },
     );
-
     if (response.ok) {
       const result = await response.json();
 
@@ -68,6 +66,7 @@ export default function LoginPage() {
   const [isNotSend, setIsNotSend] = useState(false);
 
   const {
+    // handleSubmit,
     formState: { errors, isValid },
     register,
     watch,
