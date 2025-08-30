@@ -7,6 +7,8 @@ import star from "./star.svg?react";
 import starFull from "./star_full.svg?react";
 import location from "./location.svg?react";
 import phone from "./phone.svg?react";
+import arrowup from "./arrowup.svg?react";
+import arrowdown from "./arrowdown.svg?react";
 
 export default {
   "filter": filter,
@@ -18,6 +20,8 @@ export default {
   "starFull": starFull,
   "location": location,
   "phone": phone,
+  "arrowup": arrowup,
+  "arrowdown": arrowdown,
 };
 
 export type IconName =
@@ -29,4 +33,6 @@ export type IconName =
   | "star"
   | "starFull"
   | "location"
-  | "phone";
+  | "phone"
+  | "arrowup"
+  | "arrowdown";

@@ -1,28 +1,31 @@
 import { forwardRef } from "react";
 import { cn } from "~/utils/ui";
 
-interface TextareaProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface TextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string;
   error?: string;
   row?: number;
 }
 
-const TextArea = forwardRef<HTMLInputElement, TextareaProps>(
-  ({ label, error, ...textareaProps }, ref) => (
+const TextArea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ label, error, row, ...textareaProps }, ref) => (
     <>
-      <label
-        htmlFor={textareaProps.id || textareaProps.name}
-        className="block text-sm"
-      >
+      <label htmlFor={textareaProps.name} className="block text-sm">
         {label}
       </label>
-      <input
+      <textarea
+        id={textareaProps.name}
         ref={ref}
-        className={cn("mt-1 block w-full rounded-md bg-white px-2 shadow-sm", {
-          "border-2 border-red-700": error,
-        })}
+        rows={row}
+        className={cn(
+          "mt-1 block w-full resize-none rounded-md bg-white px-2 shadow-sm",
+          {
+            "border-2 border-red-700": error,
+          },
+        )}
         {...textareaProps}
-      />
+      ></textarea>
       {error && (
         <p className="text-left text-xs font-bold text-red-700">{error}</p>
       )}

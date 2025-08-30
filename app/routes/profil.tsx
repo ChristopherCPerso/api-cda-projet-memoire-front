@@ -4,6 +4,7 @@ import { redirectTo } from "~/utils/redirectTo";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await Auth(request);
+
   if (!user) {
     return redirectTo({
       request: request,
@@ -11,12 +12,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       message: "Merci de vous connecté pour accéder à votre profil",
     });
   }
+
   return user;
 };
 
 export default function ProfilPage() {
   const user = useLoaderData<typeof loader>();
-
+  console.log(user);
   return (
     <section className="container m-auto">
       <h1>Profil {user?.firstname}</h1>

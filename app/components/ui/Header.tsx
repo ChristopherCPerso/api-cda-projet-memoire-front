@@ -3,8 +3,6 @@ import { useProfile } from "~/utils/context/AppProvider";
 
 export default function Header() {
   const user = useProfile();
-
-  console.log("User in header", user);
   return (
     <nav className="font-urbanist shadow-atecna container mx-auto mb-10 flex w-full flex-row items-center justify-between rounded-full bg-white px-10 py-4 text-base">
       <div className="text-deeper-red flex flex-row items-center gap-3 text-xl">
