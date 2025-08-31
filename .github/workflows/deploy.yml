@@ -66,7 +66,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             set -euo pipefail
-            DEPLOY_PATH=${{ secrets.DEPLOY_PATH:-$HOME/sites/apimemoire }}
+            DEPLOY_PATH=${{ secrets.DEPLOY_PATH }}
             RELEASES="$DEPLOY_PATH/releases"
             SHARED="$DEPLOY_PATH/shared"
             TS=$(date +%Y%m%d%H%M%S)
