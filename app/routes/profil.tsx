@@ -18,7 +18,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function ProfilPage() {
   const user = useLoaderData<typeof loader>();
-  console.log(user);
   return (
     <section className="container m-auto">
       <h1>Profil {user?.firstname}</h1>
