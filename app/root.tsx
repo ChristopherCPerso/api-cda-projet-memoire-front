@@ -1,3 +1,4 @@
+"use client";
 import {
   Links,
   Meta,

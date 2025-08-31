@@ -1,5 +1,6 @@
 import {
   Form,
+  useActionData,
   useLoaderData,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -50,86 +51,103 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   };
 };
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
+  try {
+    const formData = await request.formData();
 
-  // Récupération brute
-  const raw = {
-    name: formData.get("name"),
-    address: formData.get("address"),
-    postalCode: formData.get("postalCode"),
-    city: formData.get("city"),
-    phone: formData.get("phone"),
-    description: formData.get("description"),
-    categories: formData.getAll("categories"), // tableau de strings
-    paymentCategories: formData.getAll("paymentCategories"), // tableau de strings
-    openingHours: formData.get("openingHours"), // JSON string
-    photos: formData.getAll("photos"),
-  };
+    // Récupération brute
+    const raw = {
+      name: formData.get("name"),
+      address: formData.get("address"),
+      postalCode: formData.get("postalCode"),
+      city: formData.get("city"),
+      phone: formData.get("phone"),
+      description: formData.get("description"),
+      categories: formData.getAll("categories"), // tableau de strings
+      paymentCategories: formData.getAll("paymentCategories"), // tableau de strings
+      openingHours: formData.get("openingHours"), // JSON string
+      photos: formData.getAll("photos"),
+    };
 
-  // Transformer vers le format API
-  const apiPayload = {
-    name: raw.name as string,
-    address: raw.address as string,
-    postalCode: Number(raw.postalCode),
-    city: raw.city as string,
-    description: raw.description as string,
-    phone: raw.phone as string,
-    categories: raw.categories.map((c) => ({ name: c as string })),
-    paymentCategories: raw.paymentCategories.map((p) => ({
-      type: p as string,
-    })),
-    openingHours: JSON.parse(raw.openingHours as string).flatMap((day: any) => [
+    // Transformer vers le format API
+    const apiPayload = {
+      name: raw.name as string,
+      address: raw.address as string,
+      postalCode: Number(raw.postalCode),
+      city: raw.city as string,
+      description: raw.description as string,
+      phone: raw.phone as string,
+      categories: raw.categories.map((c) => ({ name: c as string })),
+      paymentCategories: raw.paymentCategories.map((p) => ({
+        type: p as string,
+      })),
+      openingHours: JSON.parse(raw.openingHours as string).flatMap(
+        (day: any) => [
+          {
+            daysOfWeek: day.daysOfWeek,
+            serviceName: "LUNCH",
+            isClosed: day.lunchIsClosed,
+            openTime: day.lunchIsClosed
+              ? null
+              : new Date(`1970-01-01T${day.lunchOpenTime}:00Z`).toISOString(),
+            closeTime: day.lunchIsClosed
+              ? null
+              : new Date(`1970-01-01T${day.lunchCloseTime}:00Z`).toISOString(),
+          },
+          {
+            daysOfWeek: day.daysOfWeek,
+            serviceName: "DINNER",
+            isClosed: day.dinnerIsClosed,
+            openTime: day.dinnerIsClosed
+              ? null
+              : new Date(`1970-01-01T${day.dinnerOpenTime}:00Z`).toISOString(),
+            closeTime: day.dinnerIsClosed
+              ? null
+              : new Date(`1970-01-01T${day.dinnerCloseTime}:00Z`).toISOString(),
+          },
+        ],
+      ),
+      restaurantImages: (raw.photos as File[]).map((file) => ({
+        link: URL.createObjectURL(file),
+        restaurant: "",
+      })),
+    };
+    //console.log(apiPayload);
+    const session = await getSession(request.headers.get("Cookie"));
+    let token = session.get("token");
+
+    const response = await fetch(
+      `${process.env.BASE_API_URL}/api/restaurants`,
       {
-        daysOfWeek: day.daysOfWeek,
-        serviceName: "LUNCH",
-        isClosed: day.lunchIsClosed,
-        openTime: day.lunchIsClosed
-          ? null
-          : new Date(`1970-01-01T${day.lunchOpenTime}:00Z`).toISOString(),
-        closeTime: day.lunchIsClosed
-          ? null
-          : new Date(`1970-01-01T${day.lunchCloseTime}:00Z`).toISOString(),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(apiPayload),
       },
-      {
-        daysOfWeek: day.daysOfWeek,
-        serviceName: "DINNER",
-        isClosed: day.dinnerIsClosed,
-        openTime: day.dinnerIsClosed
-          ? null
-          : new Date(`1970-01-01T${day.dinnerOpenTime}:00Z`).toISOString(),
-        closeTime: day.dinnerIsClosed
-          ? null
-          : new Date(`1970-01-01T${day.dinnerCloseTime}:00Z`).toISOString(),
-      },
-    ]),
-    restaurantImages: (raw.photos as File[]).map((file) => ({
-      link: URL.createObjectURL(file),
-      restaurant: "",
-    })),
-  };
-  //console.log(apiPayload);
-  const session = await getSession(request.headers.get("Cookie"));
-  let token = session.get("token");
+    );
 
-  const response = await fetch(`${process.env.BASE_API_URL}/api/restaurants`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
-    },
-    body: JSON.stringify(apiPayload),
-  });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Erreur API: ${text}`);
+    }
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Erreur API: ${text}`);
+    return {
+      success: true,
+      message: "La fiche restaurant a été créee avec succès!",
+    };
+  } catch (error) {
+    console.error("Erreur lors de l'inscription", error);
+    return {
+      success: false,
+      error: "Erreur de connexion. Veuillez réessayer",
+    };
   }
-
-  return null;
 };
 
 export default function AddRestaurantPage() {
   const { paymentType, categories } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const [expanded, setExpanded] = useState(false);
   const [maxHeight, setMaxHeight] = useState<string>("0px");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -207,7 +225,7 @@ export default function AddRestaurantPage() {
   return (
     <section className="container m-auto mb-24">
       <h1 className="text-coral">Créer une fiche restaurant</h1>
-
+      {actionData?.success && <div>{actionData.message}</div>}
       <Form method="POST" encType="multipart/form-data" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-6">
           <div>
