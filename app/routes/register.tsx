@@ -1,8 +1,8 @@
+"use client";
 import {
   Form,
   useActionData,
   useNavigate,
-  useSubmit,
   type ActionFunctionArgs,
 } from "react-router";
 import * as zod from "zod";
@@ -23,7 +23,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     lastname: formData.get("lastname"),
     email: formData.get("email"),
     password: formData.get("password"),
-    company: { name: formData.get("companyName") },
+    company: { name: formData.get("company.name") },
     isAdmin: false,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -68,7 +68,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function RegisterPage() {
   const actionData = useActionData<typeof action>();
-  const submit = useSubmit();
   const [isSuccessfullySend, setIsSuccessFullySend] = useState(false);
   const [isNotSend, setIsNotSend] = useState(false);
   const navigate = useNavigate();
@@ -76,29 +75,11 @@ export default function RegisterPage() {
   const {
     formState: { errors, isValid },
     register,
-    watch,
     reset,
   } = useRemixForm<FormData>({
     mode: "onBlur",
     resolver,
   });
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    const form = new FormData();
-    form.set("firstname", watch("firstname"));
-    form.set("lastname", watch("lastname"));
-    form.set("email", watch("email"));
-    form.set("password", watch("password"));
-    form.set("companyName", watch("company.name"));
-
-    if (form) {
-      submit(form, {
-        method: "post",
-        encType: "multipart/form-data",
-      });
-    }
-  };
 
   useEffect(() => {
     if (actionData?.success) {
@@ -126,7 +107,7 @@ export default function RegisterPage() {
           <div className="relative w-96">
             <div className="bg-coral-light relative z-40 flex h-full w-full rounded-xl ring-8 ring-white">
               <div className="flex w-full flex-col p-3">
-                <Form method="post" onSubmit={handleSubmit}>
+                <Form method="post">
                   {/* Prénom */}
                   <div className="mb-2">
                     <Input

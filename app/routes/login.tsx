@@ -1,3 +1,4 @@
+"use client";
 import {
   Form,
   Link,
@@ -49,7 +50,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       }
     }
 
-    return { error: "L'email et/ou le mot de passe son érronés" };
+    return {
+      success: false,
+      error: "L'email et/ou le mot de passe son érronés",
+    };
   } catch (error) {
     console.error("Erreur lors de l'inscription", error);
     return {
@@ -75,7 +79,6 @@ export default function LoginPage() {
     mode: "onBlur",
     resolver,
   });
-
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const form = new FormData();
@@ -110,7 +113,7 @@ export default function LoginPage() {
         />
       </div>
       <div className="flex w-1/2 flex-col">
-        <h1 className="text-coral">S'inscrire</h1>
+        <h1 className="text-coral">Connexion</h1>
         <div className="flex grow flex-row items-center justify-center">
           <div className="relative w-96">
             <div className="bg-coral-light relative z-40 flex h-full w-full rounded-xl ring-8 ring-white">
@@ -141,6 +144,9 @@ export default function LoginPage() {
                       error={errors.password?.message}
                     />
                   </div>
+                  {actionData?.error && (
+                    <div className="text-red-700">{actionData?.error}</div>
+                  )}
 
                   <div className="text-right">
                     <button
