@@ -1,0 +1,79 @@
+# Nom du workflow
+name: Build and Deploy to Infomaniak
+
+# Déclencheur : se lance à chaque push sur la branche "main"
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    # On utilise la dernière version d'Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      # Étape 1: Récupérer le code depuis GitHub
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Étape 2: Configurer l'environnement Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # Assurez-vous que c'est une version supportée par Infomaniak
+          cache: "npm"
+
+      # Étape 3: Installer toutes les dépendances (dev incluses car nécessaires pour le build)
+      - name: Install Dependencies
+        run: npm install
+
+      # Étape 4: Lancer le build de production (crée server.js et le dossier build/)
+      - name: Build Application
+        run: npm run build
+
+      # Étape 5: Créer le fichier .env sur le serveur avec le secret
+      - name: Create .env file on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            # On se place dans le dossier de l'application
+            cd ${{ secrets.SERVER_PATH }}
+            # On crée le fichier .env en utilisant le secret configuré sur GitHub
+            echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" > .env
+            echo ".env file created successfully"
+
+      # Étape 6: Copier les fichiers de production sur le serveur
+      # On ne copie que ce qui est nécessaire pour faire tourner l'app
+      - name: Copy production files to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          source: "build/, server.js, package.json, package-lock.json, node_modules/"
+          target: "${{ secrets.SERVER_PATH }}"
+          strip_components: 1 # Optionnel, peut aider si la structure des dossiers est complexe
+
+      # Étape 7: Redémarrer l'application avec PM2
+      - name: Restart application on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.SERVER_PATH }}
+            echo "Restarting PM2 process..."
+            # On utilise le nom que vous donnerez à votre app dans PM2
+            # `restart` va démarrer le processus s'il n'existe pas
+            pm2 restart frontdvisor --update-env || pm2 start "npm run start" --name "frontdvisor"
+            # On sauvegarde la liste des processus pour les redémarrages serveur
+            pm2 save
+            echo "Deployment finished!"
