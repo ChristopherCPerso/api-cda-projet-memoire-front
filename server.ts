@@ -1,3 +1,4 @@
+import { createRequestHandler } from "@react-router/express";
 import compression from "compression";
 import express from "express";
 import morgan from "morgan";
@@ -17,7 +18,7 @@ if (DEVELOPMENT) {
   const viteDevServer = await import("vite").then((vite) =>
     vite.createServer({
       server: { middlewareMode: true },
-    })
+    }),
   );
   app.use(viteDevServer.middlewares);
   app.use(async (req, res, next) => {
@@ -33,10 +34,15 @@ if (DEVELOPMENT) {
   });
 } else {
   console.log("Starting production server");
-  app.use("/assets", express.static("build/client/assets", { immutable: true, maxAge: "1y" }));
+  app.use(
+    "/assets",
+    express.static("build/client/assets", { immutable: true, maxAge: "1y" }),
+  );
   app.use(morgan("tiny"));
   app.use(express.static("build/client", { maxAge: "1h" }));
-  app.use(await import(BUILD_PATH).then((mod) => mod.app));
+
+  const build = await import(BUILD_PATH);
+  app.all("/{*any}", createRequestHandler({ build }));
 }
 
 app.listen(PORT, () => {

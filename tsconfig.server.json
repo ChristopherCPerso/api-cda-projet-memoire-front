@@ -1,23 +1,43 @@
 {
-  "include": ["server.ts", "server/**/*"],
+  // On hérite de toutes les options de votre configuration de base
+  "extends": "./tsconfig.json",
+
+  // On surcharge uniquement ce qui est nécessaire pour compiler le serveur
   "compilerOptions": {
     "module": "NodeNext",
-    "moduleResolution": "bundler",
-    "noEmit": false,
-    "lib": ["DOM", "DOM.Iterable", "ES2019"],
-    "isolatedModules": true,
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
-    "jsx": "react-jsx",
-    "resolveJsonModule": true,
-    "strict": true,
-    "declaration": false,
-    "target": "ES2017",
-    "allowJs": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {
-      "server/*": ["./server/*"]
-    }
-  }
+
+    // Très important: on dit à TypeScript de bien créer le fichier .js
+    "noEmit": false,
+    // On enlève l'option qui peut poser problème pour la compilation serveur
+    "isolatedModules": false
+  },
+
+  // On s'assure que cette configuration ne s'applique QU'AU fichier serveur
+  "include": ["server.ts"]
 }
+
+// {
+//   "include": ["server.ts", "server/**/*"],
+//   "compilerOptions": {
+//     "module": "NodeNext",
+//     "moduleResolution": "bundler",
+//     "noEmit": false,
+//     "lib": ["DOM", "DOM.Iterable", "ES2019"],
+//     "isolatedModules": true,
+//     "esModuleInterop": true,
+//     "jsx": "react-jsx",
+//     "resolveJsonModule": true,
+//     "strict": true,
+//     "declaration": false,
+//     "target": "ES2017",
+//     "allowJs": true,
+//     "skipLibCheck": true,
+//     "forceConsistentCasingInFileNames": true,
+//     "baseUrl": ".",
+//     "paths": {
+//       "server/*": ["./server/*"]
+//     }
+//   }
+// }

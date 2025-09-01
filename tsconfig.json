@@ -6,7 +6,8 @@
     "**/.server/**/*.tsx",
     "**/.client/**/*.ts",
     "**/.client/**/*.tsx",
-    "vite-env.d.ts"
+    "vite-env.d.ts",
+    "server.ts"
   ],
   "compilerOptions": {
     "module": "ESNext",
