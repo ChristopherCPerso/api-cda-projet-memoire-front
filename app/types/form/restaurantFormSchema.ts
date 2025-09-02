@@ -75,7 +75,7 @@ const DayScheduleSchema = z
 export const RestaurantFormSchema = z.object({
   name: z.string().min(1, "Le nom du restaurant est obligatoire"),
   address: z.string().min(1, "L'adresse est obligatoire"),
-  postalCode: z.coerce.number({}).int(),
+  postalCode: z.number({}).int(),
 
   city: z.string().min(1, "La ville est obligatoire"),
   description: z.string().min(10, "La description est obligatoire"),

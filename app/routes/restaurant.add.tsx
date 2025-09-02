@@ -17,10 +17,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "~/ui/Icon";
 import { useFieldArray } from "react-hook-form";
 import { DaySchedule } from "~/components/DaySchedule";
-import {
-  RestaurantFormSchema,
-  type RestaurantFormData,
-} from "~/types/form/restaurantFormSchema";
+import { RestaurantFormSchema } from "~/types/form/restaurantFormSchema";
 import { getSession } from "~/server/utils/session.server";
 
 type FormData = zod.infer<typeof RestaurantFormSchema>;
@@ -53,65 +50,75 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   try {
     const formData = await request.formData();
+    // Fonction utilitaire pour parser les valeurs
+    const parseValue = (value: FormDataEntryValue | null) => {
+      if (typeof value !== "string") {
+        return value;
+      }
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        return value;
+      }
+    };
 
-    // Récupération brute
     const raw = {
-      name: formData.get("name"),
-      address: formData.get("address"),
+      name: parseValue(formData.get("name")),
+      address: parseValue(formData.get("address")),
       postalCode: formData.get("postalCode"),
-      city: formData.get("city"),
-      phone: formData.get("phone"),
-      description: formData.get("description"),
-      categories: formData.getAll("categories"), // tableau de strings
-      paymentCategories: formData.getAll("paymentCategories"), // tableau de strings
-      openingHours: formData.get("openingHours"), // JSON string
+      city: parseValue(formData.get("city")),
+      phone: parseValue(formData.get("phone")),
+      description: parseValue(formData.get("description")),
+      categories: formData
+        .getAll("categories")
+        .flatMap((cat) => parseValue(cat) as string[]),
+      paymentCategories: formData
+        .getAll("paymentCategories")
+        .flatMap((pay) => parseValue(pay) as string[]),
+      openingHours: parseValue(formData.get("openingHours")),
       photos: formData.getAll("photos"),
     };
 
-    // Transformer vers le format API
     const apiPayload = {
-      name: raw.name as string,
-      address: raw.address as string,
+      name: raw.name,
+      address: raw.address,
       postalCode: Number(raw.postalCode),
-      city: raw.city as string,
-      description: raw.description as string,
-      phone: raw.phone as string,
-      categories: raw.categories.map((c) => ({ name: c as string })),
-      paymentCategories: raw.paymentCategories.map((p) => ({
-        type: p as string,
+      city: raw.city,
+      description: raw.description,
+      phone: raw.phone,
+      categories: raw.categories.map((c: string) => ({ name: c })),
+      paymentCategories: raw.paymentCategories.map((p: string) => ({
+        type: p,
       })),
-      openingHours: JSON.parse(raw.openingHours as string).flatMap(
-        (day: any) => [
-          {
-            daysOfWeek: day.daysOfWeek,
-            serviceName: "LUNCH",
-            isClosed: day.lunchIsClosed,
-            openTime: day.lunchIsClosed
-              ? null
-              : new Date(`1970-01-01T${day.lunchOpenTime}:00Z`).toISOString(),
-            closeTime: day.lunchIsClosed
-              ? null
-              : new Date(`1970-01-01T${day.lunchCloseTime}:00Z`).toISOString(),
-          },
-          {
-            daysOfWeek: day.daysOfWeek,
-            serviceName: "DINNER",
-            isClosed: day.dinnerIsClosed,
-            openTime: day.dinnerIsClosed
-              ? null
-              : new Date(`1970-01-01T${day.dinnerOpenTime}:00Z`).toISOString(),
-            closeTime: day.dinnerIsClosed
-              ? null
-              : new Date(`1970-01-01T${day.dinnerCloseTime}:00Z`).toISOString(),
-          },
-        ],
-      ),
+      openingHours: (raw.openingHours as any[]).flatMap((day: any) => [
+        {
+          daysOfWeek: day.daysOfWeek,
+          serviceName: "LUNCH",
+          isClosed: day.lunchIsClosed,
+          openTime: day.lunchIsClosed
+            ? null
+            : new Date(`1970-01-01T${day.lunchOpenTime}:00Z`).toISOString(),
+          closeTime: day.lunchIsClosed
+            ? null
+            : new Date(`1970-01-01T${day.lunchCloseTime}:00Z`).toISOString(),
+        },
+        {
+          daysOfWeek: day.daysOfWeek,
+          serviceName: "DINNER",
+          isClosed: day.dinnerIsClosed,
+          openTime: day.dinnerIsClosed
+            ? null
+            : new Date(`1970-01-01T${day.dinnerOpenTime}:00Z`).toISOString(),
+          closeTime: day.dinnerIsClosed
+            ? null
+            : new Date(`1970-01-01T${day.dinnerCloseTime}:00Z`).toISOString(),
+        },
+      ]),
       restaurantImages: (raw.photos as File[]).map((file) => ({
         link: URL.createObjectURL(file),
         restaurant: "",
       })),
     };
-    //console.log(apiPayload);
     const session = await getSession(request.headers.get("Cookie"));
     let token = session.get("token");
 
