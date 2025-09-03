@@ -19,6 +19,8 @@ import { useFieldArray } from "react-hook-form";
 import { DaySchedule } from "~/components/DaySchedule";
 import { RestaurantFormSchema } from "~/types/form/restaurantFormSchema";
 import { getSession } from "~/server/utils/session.server";
+import { JSDOM } from "jsdom";
+import createDOMPurify from "dompurify";
 
 type FormData = zod.infer<typeof RestaurantFormSchema>;
 const resolver = zodResolver(RestaurantFormSchema);
@@ -49,19 +51,22 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 export const action = async ({ request }: ActionFunctionArgs) => {
   try {
+    const window = new JSDOM("").window;
+    const DOMPurify = createDOMPurify(window);
+
     const formData = await request.formData();
     // Fonction utilitaire pour parser les valeurs
     const parseValue = (value: FormDataEntryValue | null) => {
       if (typeof value !== "string") {
         return value;
       }
+
       try {
         return JSON.parse(value);
       } catch (e) {
         return value;
       }
     };
-
     const raw = {
       name: parseValue(formData.get("name")),
       address: parseValue(formData.get("address")),
@@ -78,50 +83,56 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       openingHours: parseValue(formData.get("openingHours")),
       photos: formData.getAll("photos"),
     };
-
     const apiPayload = {
-      name: raw.name,
-      address: raw.address,
+      name: DOMPurify.sanitize(raw.name),
+      address: DOMPurify.sanitize(raw.address),
       postalCode: Number(raw.postalCode),
-      city: raw.city,
-      description: raw.description,
-      phone: raw.phone,
+      city: DOMPurify.sanitize(raw.city),
+      description: DOMPurify.sanitize(raw.description),
+      phone: DOMPurify.sanitize(raw.phone),
       categories: raw.categories.map((c: string) => ({ name: c })),
       paymentCategories: raw.paymentCategories.map((p: string) => ({
-        type: p,
+        type: DOMPurify.sanitize(p),
       })),
       openingHours: (raw.openingHours as any[]).flatMap((day: any) => [
         {
-          daysOfWeek: day.daysOfWeek,
+          daysOfWeek: DOMPurify.sanitize(day.daysOfWeek),
           serviceName: "LUNCH",
-          isClosed: day.lunchIsClosed,
+          isClosed: DOMPurify.sanitize(day.lunchIsClosed),
           openTime: day.lunchIsClosed
             ? null
-            : new Date(`1970-01-01T${day.lunchOpenTime}:00Z`).toISOString(),
+            : DOMPurify.sanitize(
+                new Date(`1970-01-01T${day.lunchOpenTime}:00Z`).toISOString(),
+              ),
           closeTime: day.lunchIsClosed
             ? null
-            : new Date(`1970-01-01T${day.lunchCloseTime}:00Z`).toISOString(),
+            : DOMPurify.sanitize(
+                new Date(`1970-01-01T${day.lunchCloseTime}:00Z`).toISOString(),
+              ),
         },
         {
-          daysOfWeek: day.daysOfWeek,
+          daysOfWeek: DOMPurify.sanitize(day.daysOfWeek),
           serviceName: "DINNER",
-          isClosed: day.dinnerIsClosed,
-          openTime: day.dinnerIsClosed
+          isClosed: DOMPurify.sanitize(day.dinnerIsClosed),
+          openTime: DOMPurify.sanitize(day.dinnerIsClosed)
             ? null
-            : new Date(`1970-01-01T${day.dinnerOpenTime}:00Z`).toISOString(),
+            : DOMPurify.sanitize(
+                new Date(`1970-01-01T${day.dinnerOpenTime}:00Z`).toISOString(),
+              ),
           closeTime: day.dinnerIsClosed
             ? null
-            : new Date(`1970-01-01T${day.dinnerCloseTime}:00Z`).toISOString(),
+            : DOMPurify.sanitize(
+                new Date(`1970-01-01T${day.dinnerCloseTime}:00Z`).toISOString(),
+              ),
         },
       ]),
       restaurantImages: (raw.photos as File[]).map((file) => ({
-        link: URL.createObjectURL(file),
+        link: DOMPurify.sanitize(URL.createObjectURL(file)),
         restaurant: "",
       })),
     };
     const session = await getSession(request.headers.get("Cookie"));
     let token = session.get("token");
-
     const response = await fetch(
       `${process.env.BASE_API_URL}/api/restaurants`,
       {
@@ -133,12 +144,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         body: JSON.stringify(apiPayload),
       },
     );
-
     if (!response.ok) {
       const text = await response.text();
       throw new Error(`Erreur API: ${text}`);
     }
-
     return {
       success: true,
       message: "La fiche restaurant a été créee avec succès!",
