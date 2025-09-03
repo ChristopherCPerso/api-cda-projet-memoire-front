@@ -7,7 +7,7 @@ import morgan from "morgan";
 const BUILD_PATH = "./build/server/index.js";
 const DEVELOPMENT = process.env.NODE_ENV === "development";
 const PORT = Number.parseInt(process.env.PORT || "5173");
-
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const app = express();
 
 app.use(compression());

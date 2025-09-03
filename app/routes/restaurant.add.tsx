@@ -19,8 +19,7 @@ import { useFieldArray } from "react-hook-form";
 import { DaySchedule } from "~/components/DaySchedule";
 import { RestaurantFormSchema } from "~/types/form/restaurantFormSchema";
 import { getSession } from "~/server/utils/session.server";
-import { JSDOM } from "jsdom";
-import createDOMPurify from "dompurify";
+import { sanitize } from "~/server/utils/domPurify.server";
 
 type FormData = zod.infer<typeof RestaurantFormSchema>;
 const resolver = zodResolver(RestaurantFormSchema);
@@ -51,9 +50,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 export const action = async ({ request }: ActionFunctionArgs) => {
   try {
-    const window = new JSDOM("").window;
-    const DOMPurify = createDOMPurify(window);
-
     const formData = await request.formData();
     // Fonction utilitaire pour parser les valeurs
     const parseValue = (value: FormDataEntryValue | null) => {
@@ -84,50 +80,50 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       photos: formData.getAll("photos"),
     };
     const apiPayload = {
-      name: DOMPurify.sanitize(raw.name),
-      address: DOMPurify.sanitize(raw.address),
+      name: sanitize(raw.name),
+      address: sanitize(raw.address),
       postalCode: Number(raw.postalCode),
-      city: DOMPurify.sanitize(raw.city),
-      description: DOMPurify.sanitize(raw.description),
-      phone: DOMPurify.sanitize(raw.phone),
+      city: sanitize(raw.city),
+      description: sanitize(raw.description),
+      phone: sanitize(raw.phone),
       categories: raw.categories.map((c: string) => ({ name: c })),
       paymentCategories: raw.paymentCategories.map((p: string) => ({
-        type: DOMPurify.sanitize(p),
+        type: sanitize(p),
       })),
       openingHours: (raw.openingHours as any[]).flatMap((day: any) => [
         {
-          daysOfWeek: DOMPurify.sanitize(day.daysOfWeek),
+          daysOfWeek: sanitize(day.daysOfWeek),
           serviceName: "LUNCH",
-          isClosed: DOMPurify.sanitize(day.lunchIsClosed),
+          isClosed: sanitize(day.lunchIsClosed),
           openTime: day.lunchIsClosed
             ? null
-            : DOMPurify.sanitize(
+            : sanitize(
                 new Date(`1970-01-01T${day.lunchOpenTime}:00Z`).toISOString(),
               ),
           closeTime: day.lunchIsClosed
             ? null
-            : DOMPurify.sanitize(
+            : sanitize(
                 new Date(`1970-01-01T${day.lunchCloseTime}:00Z`).toISOString(),
               ),
         },
         {
-          daysOfWeek: DOMPurify.sanitize(day.daysOfWeek),
+          daysOfWeek: sanitize(day.daysOfWeek),
           serviceName: "DINNER",
-          isClosed: DOMPurify.sanitize(day.dinnerIsClosed),
-          openTime: DOMPurify.sanitize(day.dinnerIsClosed)
+          isClosed: sanitize(day.dinnerIsClosed),
+          openTime: sanitize(day.dinnerIsClosed)
             ? null
-            : DOMPurify.sanitize(
+            : sanitize(
                 new Date(`1970-01-01T${day.dinnerOpenTime}:00Z`).toISOString(),
               ),
           closeTime: day.dinnerIsClosed
             ? null
-            : DOMPurify.sanitize(
+            : sanitize(
                 new Date(`1970-01-01T${day.dinnerCloseTime}:00Z`).toISOString(),
               ),
         },
       ]),
       restaurantImages: (raw.photos as File[]).map((file) => ({
-        link: DOMPurify.sanitize(URL.createObjectURL(file)),
+        link: sanitize(URL.createObjectURL(file)),
         restaurant: "",
       })),
     };
