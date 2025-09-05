@@ -57,9 +57,10 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: "build/, server.js, package.json, package-lock.json, node_modules/"
           target: "${{ secrets.SERVER_PATH }}"
-          strip_components: 1 # Optionnel, peut aider si la structure des dossiers est complexe
+          strip_components: 1
 
       # Étape 7: Redémarrer l'application avec PM2
       - name: Restart application on server
@@ -69,6 +70,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ${{ secrets.SERVER_PATH }}
             echo "Restarting PM2 process..."
