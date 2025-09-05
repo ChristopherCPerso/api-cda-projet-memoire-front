@@ -19,7 +19,6 @@ import { useFieldArray } from "react-hook-form";
 import { DaySchedule } from "~/components/DaySchedule";
 import { RestaurantFormSchema } from "~/types/form/restaurantFormSchema";
 import { getSession } from "~/server/utils/session.server";
-import { sanitize } from "~/server/utils/domPurify.server";
 
 type FormData = zod.infer<typeof RestaurantFormSchema>;
 const resolver = zodResolver(RestaurantFormSchema);
@@ -80,50 +79,43 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       photos: formData.getAll("photos"),
     };
     const apiPayload = {
-      name: sanitize(raw.name),
-      address: sanitize(raw.address),
+      name: raw.name,
+      address: raw.address,
       postalCode: Number(raw.postalCode),
-      city: sanitize(raw.city),
-      description: sanitize(raw.description),
-      phone: sanitize(raw.phone),
+      city: raw.city,
+      description: raw.description,
+      phone: raw.phone,
       categories: raw.categories.map((c: string) => ({ name: c })),
       paymentCategories: raw.paymentCategories.map((p: string) => ({
-        type: sanitize(p),
+        type: p,
       })),
       openingHours: (raw.openingHours as any[]).flatMap((day: any) => [
         {
-          daysOfWeek: sanitize(day.daysOfWeek),
+          daysOfWeek: day.daysOfWeek,
           serviceName: "LUNCH",
-          isClosed: sanitize(day.lunchIsClosed),
+          isClosed: day.lunchIsClosed,
           openTime: day.lunchIsClosed
             ? null
-            : sanitize(
-                new Date(`1970-01-01T${day.lunchOpenTime}:00Z`).toISOString(),
-              ),
+            : new Date(`1970-01-01T${day.lunchOpenTime}:00Z`).toISOString(),
           closeTime: day.lunchIsClosed
             ? null
-            : sanitize(
-                new Date(`1970-01-01T${day.lunchCloseTime}:00Z`).toISOString(),
-              ),
+            : new Date(`1970-01-01T${day.lunchCloseTime}:00Z`).toISOString(),
         },
         {
-          daysOfWeek: sanitize(day.daysOfWeek),
+          daysOfWeek: day.daysOfWeek,
           serviceName: "DINNER",
-          isClosed: sanitize(day.dinnerIsClosed),
-          openTime: sanitize(day.dinnerIsClosed)
+          isClosed: day.dinnerIsClosed,
+          openTime: day.dinnerIsClosed
             ? null
-            : sanitize(
-                new Date(`1970-01-01T${day.dinnerOpenTime}:00Z`).toISOString(),
-              ),
+            : new Date(`1970-01-01T${day.dinnerOpenTime}:00Z`).toISOString(),
+
           closeTime: day.dinnerIsClosed
             ? null
-            : sanitize(
-                new Date(`1970-01-01T${day.dinnerCloseTime}:00Z`).toISOString(),
-              ),
+            : new Date(`1970-01-01T${day.dinnerCloseTime}:00Z`).toISOString(),
         },
       ]),
       restaurantImages: (raw.photos as File[]).map((file) => ({
-        link: sanitize(URL.createObjectURL(file)),
+        link: URL.createObjectURL(file),
         restaurant: "",
       })),
     };

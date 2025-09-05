@@ -6,7 +6,6 @@
     "build": "tsc -p tsconfig.server.json && react-router build",
     "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 cross-env NODE_ENV=development node --loader ts-node/esm server.ts",
     "start": "node -r dotenv/config server.js",
-    "postinstall": "npm run build",
     "typecheck": "react-router typegen && tsc -b",
     "test": "npx cypress open",
     "preview": "vite preview"
@@ -20,7 +19,6 @@
     "clsx": "^2.1.1",
     "compression": "^1.7.5",
     "cypress": "^15.0.0",
-    "dompurify": "^3.2.6",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "isbot": "^5.1.27",
