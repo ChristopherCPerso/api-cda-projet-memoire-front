@@ -1,33 +1,58 @@
-# .github/workflows/deployFtp.yaml
-name: Deploy via SFTP
+name: Build and Deploy to Infomaniak
 
 on:
   push:
     branches:
-      - main # tu peux changer selon ton besoin
+      - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      # 1. Récupérer le code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      # 2. Configurer Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      # 3. Installer dépendances
+      - name: Install Dependencies
         run: npm install
 
-      - name: Build project
+      # 4. Build
+      - name: Build Application
         run: npm run build
 
-      - name: Upload via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      # 5. Copier les fichiers via SFTP (scp-action utilise SSH/SFTP)
+      - name: Upload files to server (SFTP)
+        uses: appleboy/scp-action@master
         with:
-          server: ${{ secrets.SFTP_HOST }}
+          host: ${{ secrets.SFTP_HOST }}
           username: ${{ secrets.SFTP_USER }}
-          password: ${{ secrets.SFTP_PASS }} # ou mieux : clé privée
-          ssh_private_key: ${{ secrets.SFTP_SSH_KEY }} # si tu utilises une clé
+          password: ${{ secrets.SFTP_PASS }} # ou clé SSH
+          key: ${{ secrets.SFTP_SSH_KEY }}
           port: 22
-          local_path: "./dist/*" # dossier build local (ex: dist, build, public...)
-          remote_path: ${{ secrets.SFTP_PATH }}
-          delete_remote_files: false # true si tu veux vider avant d’envoyer
+          source: "build/, server.js, package.json, package-lock.json, node_modules/"
+          target: ${{ secrets.SFTP_PATH }}
+          strip_components: 1
+
+      - name: Restart application with PM2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USER }}
+          password: ${{ secrets.SFTP_PASS }}
+          key: ${{ secrets.SFTP_SSH_KEY }}
+          port: 22
+          script: |
+            cd ${{ secrets.SFTP_PATH }}
+            echo "Restarting PM2 process..."
+            pm2 restart frontdvisor --update-env || pm2 start "npm run start" --name "frontdvisor"
+            pm2 save
+            echo "Deployment finished!"
