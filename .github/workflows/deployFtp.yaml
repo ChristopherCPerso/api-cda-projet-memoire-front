@@ -1,0 +1,33 @@
+# .github/workflows/deployFtp.yaml
+name: Deploy via SFTP
+
+on:
+  push:
+    branches:
+      - main # tu peux changer selon ton besoin
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Upload via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USER }}
+          password: ${{ secrets.SFTP_PASS }} # ou mieux : clé privée
+          ssh_private_key: ${{ secrets.SFTP_SSH_KEY }} # si tu utilises une clé
+          port: 22
+          local_path: "./dist/*" # dossier build local (ex: dist, build, public...)
+          remote_path: "/var/www/html" # chemin cible sur ton serveur
+          delete_remote_files: false # true si tu veux vider avant d’envoyer
