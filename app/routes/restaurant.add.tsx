@@ -220,7 +220,7 @@ export default function AddRestaurantPage() {
       })),
     },
   });
-
+  console.log(errors);
   const { fields } = useFieldArray({
     control,
     name: "openingHours",

@@ -14,6 +14,8 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
       `${process.env.BASE_API_URL}/api/restaurants/${apiId}`,
     );
     const data = await response.json();
+
+    console.log(data);
     return data;
   } catch (err: unknown) {
     console.error("Une erreur est survenue : ", err);
@@ -87,12 +89,16 @@ export default function PageRestaurantDetail() {
             <div>
               <p className="text-blue-mid">Type de règlement</p>
               <hr className="mb-3 text-gray-300" />
-              <p>CB, Ticket Restaurant, Chèque</p>
+              {restaurant.paymentCategories.map((cat) => {
+                return <p>{cat.type}</p>;
+              })}
             </div>
             <div>
               <p className="text-blue-mid">Type de cuisine</p>
               <hr className="mb-3 text-gray-300" />
-              <p>Française</p>
+              {restaurant.categories.map((cat) => {
+                return <p>{cat.name}</p>;
+              })}
             </div>
             <div>
               <p className="text-blue-mid">Réservation</p>

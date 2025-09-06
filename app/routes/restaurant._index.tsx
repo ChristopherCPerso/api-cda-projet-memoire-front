@@ -9,6 +9,8 @@ export const loader = async () => {
   try {
     const response = await fetch(`${process.env.BASE_API_URL}/api/restaurants`);
     const data = await response.json();
+
+    console.log(data);
     return data;
   } catch (err: unknown) {
     console.error("Une erreur est survenue : ", err);
