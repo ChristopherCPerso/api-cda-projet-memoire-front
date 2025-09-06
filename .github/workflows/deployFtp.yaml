@@ -1,4 +1,4 @@
-name: Build and Deploy to Infomaniak
+name: Build and Deploy Static Site to Infomaniak
 
 on:
   push:
@@ -10,49 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Récupérer le code
+      # 1. Checkout du code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Configurer Node.js
+      # 2. Configurer Node.js pour le build
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
 
-      # 3. Installer dépendances
+      # 3. Installer les dépendances
       - name: Install Dependencies
         run: npm install
 
-      # 4. Build
+      # 4. Build de l'application
       - name: Build Application
         run: npm run build
 
-      # 5. Copier les fichiers via SFTP (scp-action utilise SSH/SFTP)
-      - name: Upload files to server (SFTP)
+      # 5. Déployer le contenu statique sur le serveur
+      - name: Deploy Static Build via SFTP
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SFTP_HOST }}
           username: ${{ secrets.SFTP_USER }}
-          password: ${{ secrets.SFTP_PASS }} # ou clé SSH
-          key: ${{ secrets.SFTP_SSH_KEY }}
+          password: ${{ secrets.SFTP_PASS }} # facultatif si tu utilises clé SSH
+          key: ${{ secrets.SFTP_SSH_KEY }} # facultatif si tu utilises mot de passe
           port: 22
-          source: "build/, server.js, package.json, package-lock.json, node_modules/"
-          target: ${{ secrets.SFTP_PATH }}
+          source: "build/" # on ne copie que le build
+          target: ${{ secrets.SFTP_PATH }} # doit pointer sur le dossier 'www/' du site
           strip_components: 1
-
-      - name: Restart application with PM2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SFTP_HOST }}
-          username: ${{ secrets.SFTP_USER }}
-          password: ${{ secrets.SFTP_PASS }}
-          key: ${{ secrets.SFTP_SSH_KEY }}
-          port: 22
-          script: |
-            cd ${{ secrets.SFTP_PATH }}
-            echo "Restarting PM2 process..."
-            pm2 restart frontdvisor --update-env || pm2 start "npm run start" --name "frontdvisor"
-            pm2 save
-            echo "Deployment finished!"
