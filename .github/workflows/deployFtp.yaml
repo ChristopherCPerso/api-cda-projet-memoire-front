@@ -29,5 +29,5 @@ jobs:
           ssh_private_key: ${{ secrets.SFTP_SSH_KEY }} # si tu utilises une clé
           port: 22
           local_path: "./dist/*" # dossier build local (ex: dist, build, public...)
-          remote_path: "/var/www/html" # chemin cible sur ton serveur
+          remote_path: ${{ secrets.SFTP_PATH }}
           delete_remote_files: false # true si tu veux vider avant d’envoyer
