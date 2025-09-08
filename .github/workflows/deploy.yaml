@@ -40,6 +40,9 @@ jobs:
           echo "package.json exists?"; [ -f package.json ] && echo yes || echo no
           echo "package-lock.json exists?"; [ -f package-lock.json ] && echo yes || echo no
 
+      - name: Check build size
+        run: du -sh build/ || true
+
       # Étape 5 : Copier les fichiers buildés sur le serveur
       - name: Copy production files to server
         uses: appleboy/scp-action@master
@@ -53,8 +56,6 @@ jobs:
           strip_components: 0
           overwrite: true
           debug: true
-      - name: Check build size
-        run: du -sh build/ || true
 
       # Étape 6 : Configurer et relancer l'app avec PM2
       - name: Configure and Restart Application
