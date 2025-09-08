@@ -29,6 +29,7 @@ jobs:
       - name: Build Application
         run: npm run build
 
+      # Vérifier les fichiers buildés
       - name: Check build files
         run: |
           echo "pwd:" && pwd
@@ -40,10 +41,23 @@ jobs:
           echo "package.json exists?"; [ -f package.json ] && echo yes || echo no
           echo "package-lock.json exists?"; [ -f package-lock.json ] && echo yes || echo no
 
+      # Vérifier la taille du build
       - name: Check build size
         run: du -sh build/ || true
 
-        # Étape 5 : Copier les fichiers buildés sur le serveur
+      # Étape 5a : Créer les dossiers distants
+      - name: Create remote directories
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            mkdir -p ${{ secrets.SERVER_PATH }}/build/client
+            mkdir -p ${{ secrets.SERVER_PATH }}/build/server
+
+      # Étape 5b : Copier les fichiers client
       - name: Upload client files (SFTP)
         uses: appleboy/scp-action@master
         with:
@@ -59,6 +73,7 @@ jobs:
           protocol: sftp
           debug: true
 
+      # Étape 5c : Copier les fichiers server
       - name: Upload server files (SFTP)
         uses: appleboy/scp-action@master
         with:
@@ -74,6 +89,7 @@ jobs:
           protocol: sftp
           debug: true
 
+      # Étape 5d : Copier les fichiers racine
       - name: Upload root files (SFTP)
         uses: appleboy/scp-action@master
         with:
@@ -81,7 +97,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          source: server.js,package.json,package-lock.json
+          source: server.js package.json package-lock.json
           target: ${{ secrets.SERVER_PATH }}
           overwrite: true
           timeout: 120s
