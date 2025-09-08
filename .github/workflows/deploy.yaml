@@ -38,9 +38,8 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             # On se place dans le dossier de l'application
             cd ${{ secrets.SERVER_PATH }}
