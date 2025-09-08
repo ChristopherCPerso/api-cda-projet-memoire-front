@@ -38,6 +38,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
           source: |
+            build/
             server.js
             package.json
             package-lock.json
@@ -62,9 +63,6 @@ jobs:
 
             # Installer les dépendances (prod uniquement)
             npm install --omit=dev
-
-            # Builder le projet sur le serveur
-            npm run build
 
             # Redémarrer via PM2
             echo "Restarting PM2 process..."
