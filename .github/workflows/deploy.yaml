@@ -63,7 +63,7 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd ${{ secrets.SERVER_PATH }}
-
+            ls -al
             # Créer le .env avec le secret GitHub
             echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" > .env
             echo ".env file created successfully"
