@@ -45,7 +45,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
           source: |
-            build/
+            build/*
             server.js
             package.json
             package-lock.json
