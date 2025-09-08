@@ -48,10 +48,11 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          source: ./build/client/**,./build/server/**,./server.js,./package.json,./package-lock.json
+          source: build/client/*,build/server/*,server.js,package.json,package-lock.json
           target: ${{ secrets.SERVER_PATH }}
           strip_components: 0
           overwrite: true
+          debug: true
 
       # Étape 6 : Configurer et relancer l'app avec PM2
       - name: Configure and Restart Application
