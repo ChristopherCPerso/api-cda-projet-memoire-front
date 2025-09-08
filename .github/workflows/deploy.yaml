@@ -55,6 +55,8 @@ jobs:
           target: ${{ secrets.SERVER_PATH }}
           strip_components: 0
           overwrite: true
+          timeout: 120s
+          command_timeout: 20m
           debug: true
 
       # Étape 6 : Configurer et relancer l'app avec PM2
