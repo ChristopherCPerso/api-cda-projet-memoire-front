@@ -31,10 +31,14 @@ jobs:
 
       - name: Check build files
         run: |
-          echo "Files in root:"
-          ls -la
-          echo "Files in build/:"
-          ls -la build/
+          echo "pwd:" && pwd
+          echo "Root:" && ls -la
+          echo "build/:" && ls -la build || true
+          echo "build/client:" && ls -la build/client || true
+          echo "build/server:" && ls -la build/server || true
+          echo "server.js exists?"; [ -f server.js ] && echo yes || echo no
+          echo "package.json exists?"; [ -f package.json ] && echo yes || echo no
+          echo "package-lock.json exists?"; [ -f package-lock.json ] && echo yes || echo no
 
       # Étape 5 : Copier les fichiers buildés sur le serveur
       - name: Copy production files to server
@@ -44,12 +48,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          source: |
-            build/client
-            build/server
-            server.js
-            package.json
-            package-lock.json
+          source: ./build/client/**,./build/server/**,./server.js,./package.json,./package-lock.json
           target: ${{ secrets.SERVER_PATH }}
           strip_components: 0
           overwrite: true
