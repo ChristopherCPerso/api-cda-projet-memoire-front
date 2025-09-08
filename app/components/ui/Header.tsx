@@ -7,7 +7,11 @@ export default function Header() {
     <nav className="font-urbanist shadow-atecna container mx-auto mb-10 flex w-full flex-row items-center justify-between rounded-full bg-white px-10 py-4 text-base">
       <div className="text-deeper-red flex flex-row items-center gap-3 text-xl">
         <NavLink to="/">
-          <img src="/img/logo_atecna.png" alt="Logo de la société Atecna" />
+          <img
+            src="/img/logo_atecna_big.png"
+            alt="Logo de la société Atecna"
+            className="w-10"
+          />
         </NavLink>
         <NavLink
           to="/"

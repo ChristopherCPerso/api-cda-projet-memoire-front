@@ -11,7 +11,7 @@ export default function Footer() {
           <img
             src={logo}
             alt="Logo de la société Atecna"
-            className="opacity-20"
+            className="w-1/2 opacity-20"
           />
         </div>
       </div>

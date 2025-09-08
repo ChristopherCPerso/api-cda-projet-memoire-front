@@ -55,9 +55,8 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: "build/, server.js, package.json, package-lock.json, node_modules/"
           target: "${{ secrets.SERVER_PATH }}"
           strip_components: 1
@@ -68,9 +67,8 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ${{ secrets.SERVER_PATH }}
             echo "Restarting PM2 process..."
